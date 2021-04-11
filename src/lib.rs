@@ -1,42 +1,64 @@
 use std::fmt;
 
 const COMPLETED_SEGMENT: i8 = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;
+const WIDTH: i8 = 9;
+const HEIGHT: i8 = 9;
 
 pub struct Board {
     pub board: Vec<Vec<i8>>,
+    width: i8,
+    height: i8,
 }
 
 impl Board {
     pub fn new() -> Self {
         Self {
-            board: vec![vec![0; 9]; 9],
+            board: vec![vec![0; WIDTH as usize]; HEIGHT as usize],
+            width: WIDTH,
+            height: HEIGHT,
         }
     }
 }
 
 pub trait Sudoku {
-    fn rows(&self) -> &[Vec<i8>];
-    // fn cols(&self) -> [[i8; 9]; 9];
+    fn rows(&self) -> Vec<Vec<i8>>;
+    fn cols(&self) -> Vec<Vec<i8>>;
     fn rows_valid(&self) -> bool;
-    // fn cols_valid(&self) -> bool;
+    fn cols_valid(&self) -> bool;
     fn valid(&self) -> bool;
     fn set_value(&mut self, i: usize, j: usize, value: i8);
 }
 
+fn segments_valid(segments: Vec<Vec<i8>>) -> bool {
+    segments
+        .iter()
+        .map(|segment| segment.iter().sum::<i8>() == COMPLETED_SEGMENT)
+        .all(|segment| segment == true)
+}
+
 impl Sudoku for Board {
-    fn rows(&self) -> &[Vec<i8>] {
-        self.board.as_slice()
+    fn rows(&self) -> Vec<Vec<i8>> {
+        self.board.clone()
     }
 
-    // fn cols(&self) -> [[i8; 9]; 9] {
-    //     // Vec
-    // }
+    fn cols(&self) -> Vec<Vec<i8>> {
+        (0..self.width)
+            .map(|i| {
+                self.board
+                    .clone()
+                    .into_iter()
+                    .map(|row| row[i as usize].clone())
+                    .collect::<Vec<i8>>()
+            })
+            .collect::<Vec<Vec<i8>>>()
+    }
 
     fn rows_valid(&self) -> bool {
-        self.rows()
-            .iter()
-            .map(|row| row.iter().sum::<i8>() == COMPLETED_SEGMENT)
-            .all(|row| row == true)
+        segments_valid(self.rows())
+    }
+
+    fn cols_valid(&self) -> bool {
+        segments_valid(self.cols())
     }
 
     fn valid(&self) -> bool {
