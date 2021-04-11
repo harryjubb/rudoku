@@ -1,6 +1,6 @@
 use std::fmt;
 
-const COMPLETED_SEGMENT: i8 = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;
+const COMPLETED_SEGMENT_SIZE: i8 = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;
 const WIDTH: i8 = 9;
 const HEIGHT: i8 = 9;
 
@@ -25,14 +25,18 @@ pub trait Sudoku {
     fn cols(&self) -> Vec<Vec<i8>>;
     fn rows_valid(&self) -> bool;
     fn cols_valid(&self) -> bool;
-    fn valid(&self) -> bool;
+    fn board_valid(&self) -> bool;
     fn set_value(&mut self, i: usize, j: usize, value: i8);
+}
+
+fn segment_valid(segment: &Vec<i8>) -> bool {
+    segment.iter().sum::<i8>() == COMPLETED_SEGMENT_SIZE
 }
 
 fn segments_valid(segments: Vec<Vec<i8>>) -> bool {
     segments
         .iter()
-        .map(|segment| segment.iter().sum::<i8>() == COMPLETED_SEGMENT)
+        .map(|segment| segment_valid(segment))
         .all(|segment| segment == true)
 }
 
@@ -61,8 +65,8 @@ impl Sudoku for Board {
         segments_valid(self.cols())
     }
 
-    fn valid(&self) -> bool {
-        false
+    fn board_valid(&self) -> bool {
+        self.rows_valid() && self.cols_valid()
     }
 
     fn set_value(&mut self, i: usize, j: usize, value: i8) {
