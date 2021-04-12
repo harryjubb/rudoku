@@ -1,9 +1,9 @@
 use std::fmt;
 
 const COMPLETED_SEGMENT_SIZE: i8 = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;
-const WIDTH: i8 = 9;
-const HEIGHT: i8 = 9;
-const SQUARE_SIZE: i8 = 3;
+const WIDTH: usize = 9;
+const HEIGHT: usize = 9;
+const SQUARE_SIZE: usize = 3;
 
 fn segment_valid(segment: &Vec<i8>) -> bool {
     let segment_copy = segment.clone();
@@ -42,7 +42,7 @@ pub struct Board {
 impl Board {
     pub fn new() -> Self {
         Self {
-            board: vec![vec![0; WIDTH as usize]; HEIGHT as usize],
+            board: vec![vec![0; WIDTH]; HEIGHT],
         }
     }
 }
@@ -71,14 +71,18 @@ impl Sudoku for Board {
                 self.board
                     .clone()
                     .into_iter()
-                    .map(|row| row[i as usize].clone())
+                    .map(|row| row[i].clone())
                     .collect::<Vec<i8>>()
             })
             .collect::<Vec<Vec<i8>>>()
     }
 
     // fn squares(&self) -> Vec<Vec<i8>> {
-    //     (0..WIDTH).step_by(SQUARE_SIZE)
+    //     self.board.iter().map(|row| row.chunks(SQUARE_SIZE))
+    // self.board
+    //     .clone()
+    //     .chunks(SQUARE_SIZE)
+    //     .map(|rows| rows.clone().iter().map(|row| row.chunks(SQUARE_SIZE)))
     // }
 
     fn rows_valid(&self) -> bool {
