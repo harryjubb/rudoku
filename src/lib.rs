@@ -50,12 +50,14 @@ impl Board {
 pub trait Sudoku {
     fn rows(&self) -> Vec<Vec<i8>>;
     fn cols(&self) -> Vec<Vec<i8>>;
-    // fn squares(&self) -> Vec<Vec<i8>>;
+    fn squares(&self) -> Vec<Vec<i8>>;
     fn rows_valid(&self) -> bool;
     fn cols_valid(&self) -> bool;
+    fn squares_valid(&self) -> bool;
     fn board_valid(&self) -> bool;
     fn rows_complete(&self) -> bool;
     fn cols_complete(&self) -> bool;
+    fn squares_complete(&self) -> bool;
     fn board_complete(&self) -> bool;
     fn set_value(&mut self, i: usize, j: usize, value: i8);
 }
@@ -77,13 +79,35 @@ impl Sudoku for Board {
             .collect::<Vec<Vec<i8>>>()
     }
 
-    // fn squares(&self) -> Vec<Vec<i8>> {
-    //     self.board.iter().map(|row| row.chunks(SQUARE_SIZE))
-    // self.board
-    //     .clone()
-    //     .chunks(SQUARE_SIZE)
-    //     .map(|rows| rows.clone().iter().map(|row| row.chunks(SQUARE_SIZE)))
-    // }
+    fn squares(&self) -> Vec<Vec<i8>> {
+        // Chunk the numbers within rows into groups of the square size
+        let chunked_within_rows = self
+            .board
+            .iter()
+            .map(|row| {
+                row.chunks(SQUARE_SIZE)
+                    .map(|chunk| chunk.to_vec())
+                    .collect::<Vec<Vec<i8>>>()
+            })
+            .collect::<Vec<Vec<Vec<i8>>>>();
+        // Chunk the rows themselves into chunks of the square size
+        let chunked_rows = chunked_within_rows
+            .chunks(SQUARE_SIZE)
+            .map(|chunk| chunk.to_vec())
+            .collect::<Vec<Vec<Vec<Vec<i8>>>>>();
+        // Get each square and concatenate them
+        let squares = (0..(WIDTH / SQUARE_SIZE))
+            .map(|i| {
+                (0..(HEIGHT / SQUARE_SIZE))
+                    .map(|j| (&chunked_rows[i][j]).clone())
+                    .collect::<Vec<Vec<Vec<i8>>>>()
+                    .concat()
+            })
+            .collect::<Vec<Vec<Vec<i8>>>>()
+            .concat();
+
+        squares
+    }
 
     fn rows_valid(&self) -> bool {
         segments_valid(self.rows())
@@ -93,8 +117,12 @@ impl Sudoku for Board {
         segments_valid(self.cols())
     }
 
+    fn squares_valid(&self) -> bool {
+        segments_valid(self.squares())
+    }
+
     fn board_valid(&self) -> bool {
-        self.rows_valid() && self.cols_valid()
+        self.rows_valid() && self.cols_valid() && self.squares_valid()
     }
 
     fn rows_complete(&self) -> bool {
@@ -105,8 +133,12 @@ impl Sudoku for Board {
         segments_complete(self.cols())
     }
 
+    fn squares_complete(&self) -> bool {
+        segments_complete(self.squares())
+    }
+
     fn board_complete(&self) -> bool {
-        self.rows_complete() && self.cols_complete()
+        self.rows_complete() && self.cols_complete() && self.squares_complete()
     }
 
     fn set_value(&mut self, i: usize, j: usize, value: i8) {
