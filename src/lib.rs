@@ -256,4 +256,16 @@ mod tests {
         assert_eq!(board.board_valid(), true);
         assert_eq!(board.board_complete(), false);
     }
+
+    #[test]
+    fn complete_valid_board_string_is_valid_and_complete() {
+        let board = Board::from_string(
+            "845632179732918654196745328683574912457291836219863547361429785574186293928357461",
+        );
+        assert_eq!(board.board_valid(), true);
+        assert_eq!(board.rows_complete(), true);
+        assert_eq!(board.cols_complete(), true);
+        assert_eq!(board.squares_complete(), true);
+        // assert_eq!(board.board_complete(), true);
+    }
 }
