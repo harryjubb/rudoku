@@ -1,7 +1,9 @@
 use rudoku::{Board, Sudoku};
 
 fn main() {
-    let board: Board = Board::new();
+    let board: Board = Board::from_string(
+        "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    );
     println!("{}", board);
     println!("Rows valid: {}", board.rows_valid());
     println!("Cols valid: {}", board.cols_valid());
