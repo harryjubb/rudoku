@@ -2,7 +2,7 @@ use rudoku::{Board, Sudoku};
 
 fn main() {
     let board: Board = Board::from_string(
-        "100000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
     );
     println!("{}", board);
     println!("Rows valid: {}", board.rows_valid());

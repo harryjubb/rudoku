@@ -174,3 +174,44 @@ impl fmt::Display for Board {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn blank_board_from_new() {
+        let board = Board::new();
+        assert_eq!(board.board, vec![vec![0; 9]; 9]);
+    }
+
+    #[test]
+    fn correct_board_from_string() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(
+            board.board,
+            [
+                [3, 7, 9, 0, 0, 0, 0, 1, 4],
+                [0, 6, 0, 0, 1, 0, 0, 7, 0],
+                [0, 8, 0, 0, 0, 9, 0, 0, 5],
+                [4, 3, 5, 0, 0, 7, 0, 0, 0],
+                [0, 9, 0, 0, 4, 0, 0, 2, 0],
+                [0, 0, 0, 8, 0, 0, 4, 3, 6],
+                [9, 0, 0, 7, 0, 0, 0, 8, 0],
+                [0, 4, 0, 0, 8, 0, 0, 5, 0],
+                [8, 5, 0, 0, 0, 0, 2, 4, 9]
+            ]
+        );
+    }
+
+    #[test]
+    fn incomplete_valid_board_string_is_valid() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.board_valid(), true);
+        assert_eq!(board.board_complete(), false);
+    }
+}
