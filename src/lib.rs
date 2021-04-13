@@ -184,11 +184,47 @@ mod tests {
         let board = Board::new();
         assert_eq!(board.board, vec![vec![0; 9]; 9]);
     }
+
     #[test]
     fn blank_board_is_valid() {
         let board = Board::new();
         assert_eq!(board.board_valid(), true);
         assert_eq!(board.board_complete(), false);
+    }
+
+    #[test]
+    fn set_value() {
+        let mut board = Board::new();
+        board.set_value(0, 0, 1);
+        assert_eq!(
+            board.board,
+            [
+                [1, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ]
+        );
+        board.set_value(3, 5, 9);
+        assert_eq!(
+            board.board,
+            [
+                [1, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 9, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            ]
+        );
     }
 
     #[test]
