@@ -11,7 +11,7 @@ fn segment_valid(segment: &Vec<i32>) -> bool {
         .iter()
         .filter(|x| (**x) > 0)
         .collect::<Vec<&i32>>();
-    let mut segment_no_zeroes_dedup = segment.clone();
+    let mut segment_no_zeroes_dedup = segment_no_zeroes.clone();
     segment_no_zeroes_dedup.sort();
     segment_no_zeroes_dedup.dedup();
     segment_no_zeroes.len() == segment_no_zeroes_dedup.len()
@@ -183,6 +183,12 @@ mod tests {
     fn blank_board_from_new() {
         let board = Board::new();
         assert_eq!(board.board, vec![vec![0; 9]; 9]);
+    }
+    #[test]
+    fn blank_board_is_valid() {
+        let board = Board::new();
+        assert_eq!(board.board_valid(), true);
+        assert_eq!(board.board_complete(), false);
     }
 
     #[test]
