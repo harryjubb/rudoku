@@ -249,6 +249,54 @@ mod tests {
     }
 
     #[test]
+    fn correct_rows() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.rows()[0], [3, 7, 9, 0, 0, 0, 0, 1, 4]);
+        assert_eq!(board.rows()[1], [0, 6, 0, 0, 1, 0, 0, 7, 0]);
+        assert_eq!(board.rows()[2], [0, 8, 0, 0, 0, 9, 0, 0, 5]);
+        assert_eq!(board.rows()[3], [4, 3, 5, 0, 0, 7, 0, 0, 0]);
+        assert_eq!(board.rows()[4], [0, 9, 0, 0, 4, 0, 0, 2, 0]);
+        assert_eq!(board.rows()[5], [0, 0, 0, 8, 0, 0, 4, 3, 6]);
+        assert_eq!(board.rows()[6], [9, 0, 0, 7, 0, 0, 0, 8, 0]);
+        assert_eq!(board.rows()[7], [0, 4, 0, 0, 8, 0, 0, 5, 0]);
+        assert_eq!(board.rows()[8], [8, 5, 0, 0, 0, 0, 2, 4, 9]);
+    }
+
+    #[test]
+    fn correct_cols() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.cols()[0], [3, 0, 0, 4, 0, 0, 9, 0, 8]);
+        assert_eq!(board.cols()[1], [7, 6, 8, 3, 9, 0, 0, 4, 5]);
+        assert_eq!(board.cols()[2], [9, 0, 0, 5, 0, 0, 0, 0, 0]);
+        assert_eq!(board.cols()[3], [0, 0, 0, 0, 0, 8, 7, 0, 0]);
+        assert_eq!(board.cols()[4], [0, 1, 0, 0, 4, 0, 0, 8, 0]);
+        assert_eq!(board.cols()[5], [0, 0, 9, 7, 0, 0, 0, 0, 0]);
+        assert_eq!(board.cols()[6], [0, 0, 0, 0, 0, 4, 0, 0, 2]);
+        assert_eq!(board.cols()[7], [1, 7, 0, 0, 2, 3, 8, 5, 4]);
+        assert_eq!(board.cols()[8], [4, 0, 5, 0, 0, 6, 0, 0, 9]);
+    }
+
+    #[test]
+    fn correct_squares() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.squares()[0], [3, 7, 9, 0, 6, 0, 0, 8, 0]);
+        assert_eq!(board.squares()[1], [0, 0, 0, 0, 1, 0, 0, 0, 9]);
+        assert_eq!(board.squares()[2], [0, 1, 4, 0, 7, 0, 0, 0, 5]);
+        assert_eq!(board.squares()[3], [4, 3, 5, 0, 9, 0, 0, 0, 0]);
+        assert_eq!(board.squares()[4], [0, 0, 7, 0, 4, 0, 8, 0, 0]);
+        assert_eq!(board.squares()[5], [0, 0, 0, 0, 2, 0, 4, 3, 6]);
+        assert_eq!(board.squares()[6], [9, 0, 0, 0, 4, 0, 8, 5, 0]);
+        assert_eq!(board.squares()[7], [7, 0, 0, 0, 8, 0, 0, 0, 0]);
+        assert_eq!(board.squares()[8], [0, 8, 0, 0, 5, 0, 2, 4, 9]);
+    }
+
+    #[test]
     fn incomplete_valid_board_string_is_valid() {
         let board = Board::from_string(
             "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
@@ -258,6 +306,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn complete_valid_board_string_is_valid_and_complete() {
         let board = Board::from_string(
             "845632179732918654196745328683574912457291836219863547361429785574186293928357461",
