@@ -91,15 +91,14 @@ impl Sudoku for Board {
     }
 
     fn squares(&self) -> Vec<Vec<i32>> {
-        // Chunk rows
+        // Chunk rows into vertical SQUARE_SIZE
         let chunked_rows = self
             .board
             .chunks(SQUARE_SIZE)
             .map(|chunk| chunk.to_vec())
             .collect::<Vec<Vec<Vec<i32>>>>();
-        println!("chunked_rows");
-        println!("{:?}", chunked_rows);
 
+        // Chunk the rows into horizontal SQUARE_SIZE
         let chunked_squares = chunked_rows
             .iter()
             .map(|chunk| {
@@ -114,16 +113,13 @@ impl Sudoku for Board {
             })
             .collect::<Vec<Vec<Vec<Vec<i32>>>>>();
 
-        println!("chunked_squares");
-        println!("{:?}", chunked_squares);
-
+        // Get vectors of the numbers in each square
         let squares = chunked_squares
             .iter()
             .map(|square_row| {
-                let sq_row_copy = square_row.clone();
-                (0..3)
+                (0..SQUARE_SIZE)
                     .map(|i| {
-                        sq_row_copy
+                        square_row
                             .iter()
                             .map(|chunked_row| chunked_row.iter().nth(i).unwrap().clone())
                             .collect::<Vec<Vec<i32>>>()
@@ -133,9 +129,6 @@ impl Sudoku for Board {
             })
             .collect::<Vec<Vec<Vec<i32>>>>()
             .concat();
-
-        println!("squares");
-        println!("{:?}", squares);
 
         squares
     }
