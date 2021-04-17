@@ -90,26 +90,17 @@ impl Sudoku for Board {
             .collect::<Vec<Vec<i32>>>()
     }
 
-    // fn squares(&self) -> Vec<Vec<i32>> {
     fn squares(&self) -> Vec<Vec<i32>> {
-        // let linear = self.board.concat();
-
-        // let sq2 = (0..(WIDTH - SQUARE_SIZE)).step_by(SQUARE_SIZE).map(|i| {
-        //     (0..(HEIGHT - SQUARE_SIZE))
-        //         .step_by(SQUARE_SIZE)
-        //         .map(|j| linear[i..(i + SQUARE_SIZE)][j..(j + SQUARE_SIZE)])
-        // });
-
         // Chunk rows
-        let chunked_rows_2 = self
+        let chunked_rows = self
             .board
             .chunks(SQUARE_SIZE)
             .map(|chunk| chunk.to_vec())
             .collect::<Vec<Vec<Vec<i32>>>>();
-        println!("chunked_rows_2");
-        println!("{:?}", chunked_rows_2);
+        println!("chunked_rows");
+        println!("{:?}", chunked_rows);
 
-        let chunked_sq = chunked_rows_2
+        let chunked_squares = chunked_rows
             .iter()
             .map(|chunk| {
                 chunk
@@ -123,10 +114,10 @@ impl Sudoku for Board {
             })
             .collect::<Vec<Vec<Vec<Vec<i32>>>>>();
 
-        println!("chunked_sq");
-        println!("{:?}", chunked_sq);
+        println!("chunked_squares");
+        println!("{:?}", chunked_squares);
 
-        let sq = chunked_sq
+        let squares = chunked_squares
             .iter()
             .map(|square_row| {
                 let sq_row_copy = square_row.clone();
@@ -136,79 +127,15 @@ impl Sudoku for Board {
                             .iter()
                             .map(|chunked_row| chunked_row.iter().nth(i).unwrap().clone())
                             .collect::<Vec<Vec<i32>>>()
+                            .concat()
                     })
-                    .collect::<Vec<Vec<Vec<i32>>>>()
-            })
-            .collect::<Vec<Vec<Vec<Vec<i32>>>>>();
-
-        println!("sq");
-        println!("{:?}", sq);
-
-        // let sq = chunked_sq.iter().map(|square_row| {
-        //     let square_row_copy = square_row.clone();
-        //     (0..3).map(move |i| {
-        //         let i_copy = i.clone();
-        //         (0..3).map(move |j| {
-        //             square_row_copy[j][i_copy];
-        //         })
-        //     })
-        // });
-
-        let squares_2 = chunked_sq.iter().for_each(|square_row| {
-            println!("{:?}", square_row);
-            (0..3).for_each(|i| {
-                println!("{:?}", square_row[i]);
-                (0..3).for_each(|j| {
-                    println!("{:?}", square_row[j][i]);
-                })
-            })
-        });
-
-        // let squares_2 = chunked_sq
-        //     .iter()
-        //     .map(|square_row| {
-        //         (0..(WIDTH / SQUARE_SIZE))
-        //             .map(|i| {
-        //                 square_row
-        //                     .clone()
-        //                     .iter()
-        //                     .map(|chunked_row| chunked_row[i])
-        //                     .collect::<Vec<Vec<i32>>>()
-        //             })
-        //             .collect::<Vec<Vec<Vec<i32>>>>()
-        //     })
-        //     .collect::<Vec<Vec<Vec<Vec<i32>>>>>();
-
-        // Chunk the numbers within rows into groups of the square size
-        let chunked_within_rows = self
-            .board
-            .iter()
-            .map(|row| {
-                row.chunks(SQUARE_SIZE)
-                    .map(|chunk| chunk.to_vec())
                     .collect::<Vec<Vec<i32>>>()
-            })
-            .collect::<Vec<Vec<Vec<i32>>>>();
-        // println!("{:?}", chunked_within_rows);
-        // Chunk the rows themselves into chunks of the square size
-        let chunked_rows = chunked_within_rows
-            .chunks(SQUARE_SIZE)
-            .map(|chunk| chunk.to_vec())
-            .collect::<Vec<Vec<Vec<Vec<i32>>>>>();
-        // println!("{:?}", chunked_rows);
-
-        // Get each square and concatenate them
-        let squares = (0..(WIDTH / SQUARE_SIZE))
-            .map(|i| {
-                (0..(HEIGHT / SQUARE_SIZE))
-                    .map(|j| (&chunked_rows[j][i]).clone())
-                    .collect::<Vec<Vec<Vec<i32>>>>()
-                    .concat()
             })
             .collect::<Vec<Vec<Vec<i32>>>>()
             .concat();
 
-        // println!("{:?}", squares);
+        println!("squares");
+        println!("{:?}", squares);
 
         squares
     }
@@ -358,7 +285,7 @@ mod tests {
         assert_eq!(board.board_valid(), true);
         assert_eq!(board.rows_complete(), true);
         assert_eq!(board.cols_complete(), true);
-        // assert_eq!(board.squares_complete(), true);
-        // assert_eq!(board.board_complete(), true);
+        assert_eq!(board.squares_complete(), true);
+        assert_eq!(board.board_complete(), true);
     }
 }
