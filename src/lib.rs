@@ -1,5 +1,7 @@
+use std::collections::HashMap;
 use std::fmt;
 
+const ALL_POSSIBLE_VALUES: [i32; 9] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const COMPLETED_SEGMENT_SIZE: i32 = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;
 const WIDTH: usize = 9;
 const HEIGHT: usize = 9;
@@ -35,26 +37,36 @@ fn segments_complete(segments: Vec<Vec<i32>>) -> bool {
         .all(|segment| segment == true)
 }
 
+fn determine_possible_values(board: Vec<Vec<i32>>, i: usize, j: usize) {}
+
 pub struct Board {
     pub board: Vec<Vec<i32>>,
+    // pub possible_values: HashMap<(usize, usize), Vec<i32>>,
 }
 
 impl Board {
     pub fn new() -> Self {
+        let mut possible_values = HashMap::new();
+        (0..HEIGHT).for_each(|i| {
+            (0..WIDTH).for_each(|j| {
+                possible_values.insert((i, j), ALL_POSSIBLE_VALUES);
+            });
+        });
         Self {
             board: vec![vec![0; WIDTH]; HEIGHT],
+            // possible_values: possible_values,
         }
     }
     pub fn from_string(board_string: &str) -> Self {
-        Self {
-            board: board_string
-                .chars()
-                .map(|character| character.to_digit(10).unwrap() as i32)
-                .collect::<Vec<i32>>()
-                .chunks(WIDTH)
-                .map(|chunk| chunk.to_vec())
-                .collect(),
-        }
+        let board = board_string
+            .chars()
+            .map(|character| character.to_digit(10).unwrap() as i32)
+            .collect::<Vec<i32>>()
+            .chunks(WIDTH)
+            .map(|chunk| chunk.to_vec())
+            .collect();
+        // let possible_values =
+        Self { board: board }
     }
 }
 
@@ -62,6 +74,9 @@ pub trait Sudoku {
     fn rows(&self) -> Vec<Vec<i32>>;
     fn cols(&self) -> Vec<Vec<i32>>;
     fn squares(&self) -> Vec<Vec<i32>>;
+    fn get_row(&self, i: usize) -> Vec<i32>;
+    fn get_col(&self, j: usize) -> Vec<i32>;
+    fn get_square(&self, i: usize, j: usize) -> Vec<i32>;
     fn rows_valid(&self) -> bool;
     fn cols_valid(&self) -> bool;
     fn squares_valid(&self) -> bool;
@@ -131,6 +146,20 @@ impl Sudoku for Board {
             .concat();
 
         squares
+    }
+
+    fn get_row(&self, i: usize) -> Vec<i32> {
+        self.rows()[i].clone()
+    }
+
+    fn get_col(&self, j: usize) -> Vec<i32> {
+        self.cols()[j].clone()
+    }
+
+    fn get_square(&self, i: usize, j: usize) -> Vec<i32> {
+        // TODO: How to translate i / j to pick out a SQUARE_SIZE
+        // some clever addition of i and j
+        self.squares()[(i / 3) + (j / 3)].clone()
     }
 
     fn rows_valid(&self) -> bool {
@@ -280,5 +309,67 @@ mod tests {
         assert_eq!(board.cols_complete(), true);
         assert_eq!(board.squares_complete(), true);
         assert_eq!(board.board_complete(), true);
+    }
+
+    #[test]
+    fn test_squares() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(
+            board.squares(),
+            vec![
+                vec![3, 7, 9, 0, 6, 0, 0, 8, 0],
+                vec![0, 0, 0, 0, 1, 0, 0, 0, 9,],
+                vec![0, 1, 4, 0, 7, 0, 0, 0, 5],
+                vec![4, 3, 5, 0, 9, 0, 0, 0, 0],
+                vec![0, 0, 7, 0, 4, 0, 8, 0, 0],
+                vec![0, 0, 0, 0, 2, 0, 4, 3, 6],
+                vec![9, 0, 0, 0, 4, 0, 8, 5, 0],
+                vec![7, 0, 0, 0, 8, 0, 0, 0, 0],
+                vec![0, 8, 0, 0, 5, 0, 2, 4, 9]
+            ]
+        );
+    }
+
+    #[test]
+    fn test_get_row() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.get_row(0), vec![3, 7, 9, 0, 0, 0, 0, 1, 4]);
+        assert_eq!(board.get_row(1), vec![0, 6, 0, 0, 1, 0, 0, 7, 0]);
+        assert_eq!(board.get_row(2), vec![0, 8, 0, 0, 0, 9, 0, 0, 5]);
+        assert_eq!(board.get_row(3), vec![4, 3, 5, 0, 0, 7, 0, 0, 0]);
+        assert_eq!(board.get_row(4), vec![0, 9, 0, 0, 4, 0, 0, 2, 0]);
+        assert_eq!(board.get_row(5), vec![0, 0, 0, 8, 0, 0, 4, 3, 6]);
+        assert_eq!(board.get_row(6), vec![9, 0, 0, 7, 0, 0, 0, 8, 0]);
+        assert_eq!(board.get_row(7), vec![0, 4, 0, 0, 8, 0, 0, 5, 0]);
+        assert_eq!(board.get_row(8), vec![8, 5, 0, 0, 0, 0, 2, 4, 9]);
+    }
+
+    #[test]
+    fn test_get_col() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.get_col(0), vec![3, 0, 0, 4, 0, 0, 9, 0, 8]);
+        assert_eq!(board.get_col(1), vec![7, 6, 8, 3, 9, 0, 0, 4, 5]);
+        assert_eq!(board.get_col(2), vec![9, 0, 0, 5, 0, 0, 0, 0, 0]);
+        assert_eq!(board.get_col(3), vec![0, 0, 0, 0, 0, 8, 7, 0, 0]);
+        assert_eq!(board.get_col(4), vec![0, 1, 0, 0, 4, 0, 0, 8, 0]);
+        assert_eq!(board.get_col(5), vec![0, 0, 9, 7, 0, 0, 0, 0, 0]);
+        assert_eq!(board.get_col(6), vec![0, 0, 0, 0, 0, 4, 0, 0, 2]);
+        assert_eq!(board.get_col(7), vec![1, 7, 0, 0, 2, 3, 8, 5, 4]);
+        assert_eq!(board.get_col(8), vec![4, 0, 5, 0, 0, 6, 0, 0, 9]);
+    }
+
+    #[test]
+    fn test_get_square() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.get_square(0, 0), vec![3, 7, 9, 0, 6, 0, 0, 8, 0]);
+        assert_eq!(board.get_square(8, 8), vec![0, 8, 0, 0, 5, 0, 2, 4, 9]);
     }
 }
