@@ -157,9 +157,14 @@ impl Sudoku for Board {
     }
 
     fn get_square(&self, i: usize, j: usize) -> Vec<i32> {
-        // TODO: How to translate i / j to pick out a SQUARE_SIZE
-        // some clever addition of i and j
-        self.squares()[(i / 3) + (j / 3)].clone()
+        self.squares()
+            .chunks(SQUARE_SIZE)
+            .nth(i / SQUARE_SIZE)
+            .unwrap()
+            .iter()
+            .nth(j / SQUARE_SIZE)
+            .unwrap()
+            .clone()
     }
 
     fn rows_valid(&self) -> bool {
@@ -371,5 +376,8 @@ mod tests {
         );
         assert_eq!(board.get_square(0, 0), vec![3, 7, 9, 0, 6, 0, 0, 8, 0]);
         assert_eq!(board.get_square(8, 8), vec![0, 8, 0, 0, 5, 0, 2, 4, 9]);
+        assert_eq!(board.get_square(4, 4), vec![0, 0, 7, 0, 4, 0, 8, 0, 0]);
+        assert_eq!(board.get_square(4, 2), vec![4, 3, 5, 0, 9, 0, 0, 0, 0]);
+        assert_eq!(board.get_square(7, 3), vec![7, 0, 0, 0, 8, 0, 0, 0, 0]);
     }
 }
