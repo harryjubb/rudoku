@@ -148,21 +148,21 @@ impl Sudoku for Board {
         squares
     }
 
-    fn get_row(&self, i: usize) -> Vec<i32> {
-        self.rows()[i].clone()
+    fn get_row(&self, row_index: usize) -> Vec<i32> {
+        self.rows()[row_index].clone()
     }
 
-    fn get_col(&self, j: usize) -> Vec<i32> {
-        self.cols()[j].clone()
+    fn get_col(&self, col_index: usize) -> Vec<i32> {
+        self.cols()[col_index].clone()
     }
 
-    fn get_square(&self, i: usize, j: usize) -> Vec<i32> {
+    fn get_square(&self, row_index: usize, col_index: usize) -> Vec<i32> {
         self.squares()
             .chunks(SQUARE_SIZE)
-            .nth(i / SQUARE_SIZE)
+            .nth(row_index / SQUARE_SIZE)
             .unwrap()
             .iter()
-            .nth(j / SQUARE_SIZE)
+            .nth(col_index / SQUARE_SIZE)
             .unwrap()
             .clone()
     }
