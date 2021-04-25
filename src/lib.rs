@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
 
-const ALL_POSSIBLE_VALUES: [i32; 9] = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const COMPLETED_SEGMENT_SIZE: i32 = 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9;
 const WIDTH: usize = 9;
 const HEIGHT: usize = 9;
@@ -85,6 +84,8 @@ pub trait Sudoku {
     fn board_complete(&self) -> bool;
     fn set_value(&mut self, i: usize, j: usize, value: i32);
     fn possible_values(&self) -> HashMap<(usize, usize), Vec<i32>>;
+    fn solve_tick(&mut self) -> i32;
+    fn solve(&mut self) -> i32;
 }
 
 impl Sudoku for Board {
@@ -233,6 +234,39 @@ impl Sudoku for Board {
             });
         });
         possible_values
+    }
+
+    fn solve_tick(&mut self) -> i32 {
+        // For values with only one possible value, fill them in
+        let mut values_set = 0;
+        let possible_values = self.possible_values();
+        let keys = possible_values.keys();
+        keys.for_each(|key| {
+            let possible = possible_values.get(&key);
+            match possible {
+                Some(possible) => {
+                    if possible.len() == 1 && self.board[key.0][key.1] == 0 {
+                        self.set_value(key.0, key.1, possible[0]);
+                        values_set += 1;
+                        println!("set a value")
+                    }
+                }
+                None => panic!("Tried to solve an invalid cell"),
+            }
+        });
+        values_set
+    }
+
+    fn solve(&mut self) -> i32 {
+        let mut steps_taken = 0;
+        while !self.board_complete() {
+            let values_set = self.solve_tick();
+            steps_taken += 1;
+            if values_set == 0 {
+                panic!("Could not solve: ran out of definitive possible values")
+            }
+        }
+        steps_taken
     }
 }
 
@@ -421,5 +455,109 @@ mod tests {
         assert_eq!(board.possible_values().get(&(0, 0)), Some(&vec![3]));
         assert_eq!(board.possible_values().get(&(1, 0)), Some(&vec![2, 5]));
         assert_eq!(board.possible_values().get(&(0, 3)), Some(&vec![2, 5, 6]));
+    }
+
+    #[test]
+    fn test_solve_tick() {
+        let mut board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.solve_tick(), 2);
+        assert_eq!(
+            board.board,
+            [
+                [3, 7, 9, 0, 0, 0, 0, 1, 4],
+                [0, 6, 0, 0, 1, 0, 0, 7, 0],
+                [0, 8, 0, 0, 0, 9, 0, 6, 5],
+                [4, 3, 5, 0, 0, 7, 0, 9, 0],
+                [0, 9, 0, 0, 4, 0, 0, 2, 0],
+                [0, 0, 0, 8, 0, 0, 4, 3, 6],
+                [9, 0, 0, 7, 0, 0, 0, 8, 0],
+                [0, 4, 0, 0, 8, 0, 0, 5, 0],
+                [8, 5, 0, 0, 0, 0, 2, 4, 9],
+            ]
+        );
+        assert_eq!(board.solve_tick(), 2);
+        assert_eq!(
+            board.board,
+            [
+                [3, 7, 9, 0, 0, 0, 8, 1, 4],
+                [0, 6, 0, 0, 1, 0, 0, 7, 0],
+                [0, 8, 0, 0, 0, 9, 3, 6, 5],
+                [4, 3, 5, 0, 0, 7, 0, 9, 0],
+                [0, 9, 0, 0, 4, 0, 0, 2, 0],
+                [0, 0, 0, 8, 0, 0, 4, 3, 6],
+                [9, 0, 0, 7, 0, 0, 0, 8, 0],
+                [0, 4, 0, 0, 8, 0, 0, 5, 0],
+                [8, 5, 0, 0, 0, 0, 2, 4, 9]
+            ]
+        );
+        assert_eq!(board.solve_tick(), 3);
+        assert_eq!(
+            board.board,
+            [
+                [3, 7, 9, 0, 0, 0, 8, 1, 4],
+                [0, 6, 0, 0, 1, 0, 9, 7, 2],
+                [0, 8, 0, 0, 0, 9, 3, 6, 5],
+                [4, 3, 5, 0, 0, 7, 1, 9, 0],
+                [0, 9, 0, 0, 4, 0, 0, 2, 0],
+                [0, 0, 0, 8, 0, 0, 4, 3, 6],
+                [9, 0, 0, 7, 0, 0, 0, 8, 0],
+                [0, 4, 0, 0, 8, 0, 0, 5, 0],
+                [8, 5, 0, 0, 0, 0, 2, 4, 9],
+            ]
+        );
+        assert_eq!(board.solve_tick(), 4);
+        assert_eq!(
+            board.board,
+            [
+                [3, 7, 9, 0, 0, 0, 8, 1, 4],
+                [5, 6, 4, 0, 1, 0, 9, 7, 2],
+                [0, 8, 0, 0, 0, 9, 3, 6, 5],
+                [4, 3, 5, 0, 0, 7, 1, 9, 8],
+                [0, 9, 0, 0, 4, 0, 0, 2, 0],
+                [0, 0, 0, 8, 0, 0, 4, 3, 6],
+                [9, 0, 0, 7, 0, 0, 6, 8, 0],
+                [0, 4, 0, 0, 8, 0, 0, 5, 0],
+                [8, 5, 0, 0, 0, 0, 2, 4, 9]
+            ]
+        );
+        assert_eq!(board.solve_tick(), 3);
+        assert_eq!(
+            board.board,
+            [
+                [3, 7, 9, 0, 0, 0, 8, 1, 4],
+                [5, 6, 4, 3, 1, 0, 9, 7, 2],
+                [0, 8, 0, 0, 0, 9, 3, 6, 5],
+                [4, 3, 5, 0, 0, 7, 1, 9, 8],
+                [0, 9, 0, 0, 4, 0, 0, 2, 7],
+                [0, 0, 0, 8, 0, 0, 4, 3, 6],
+                [9, 0, 0, 7, 0, 0, 6, 8, 0],
+                [0, 4, 0, 0, 8, 0, 7, 5, 0],
+                [8, 5, 0, 0, 0, 0, 2, 4, 9]
+            ]
+        );
+    }
+
+    #[test]
+    fn test_solve() {
+        let mut board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.solve(), 20);
+        assert_eq!(
+            board.board,
+            [
+                [3, 7, 9, 0, 0, 0, 0, 1, 4],
+                [0, 6, 0, 0, 1, 0, 0, 7, 0],
+                [0, 8, 0, 0, 0, 9, 0, 6, 5],
+                [4, 3, 5, 0, 0, 7, 0, 9, 0],
+                [0, 9, 0, 0, 4, 0, 0, 2, 0],
+                [0, 0, 0, 8, 0, 0, 4, 3, 6],
+                [9, 0, 0, 7, 0, 0, 0, 8, 0],
+                [0, 4, 0, 0, 8, 0, 0, 5, 0],
+                [8, 5, 0, 0, 0, 0, 2, 4, 9],
+            ]
+        );
     }
 }
