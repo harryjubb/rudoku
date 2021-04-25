@@ -37,8 +37,6 @@ fn segments_complete(segments: Vec<Vec<i32>>) -> bool {
         .all(|segment| segment == true)
 }
 
-fn determine_possible_values(board: Vec<Vec<i32>>, i: usize, j: usize) {}
-
 pub struct Board {
     pub board: Vec<Vec<i32>>,
     // pub possible_values: HashMap<(usize, usize), Vec<i32>>,
@@ -46,12 +44,12 @@ pub struct Board {
 
 impl Board {
     pub fn new() -> Self {
-        let mut possible_values = HashMap::new();
-        (0..HEIGHT).for_each(|i| {
-            (0..WIDTH).for_each(|j| {
-                possible_values.insert((i, j), ALL_POSSIBLE_VALUES);
-            });
-        });
+        // let mut possible_values = HashMap::new();
+        // (0..HEIGHT).for_each(|i| {
+        //     (0..WIDTH).for_each(|j| {
+        //         possible_values.insert((i, j), ALL_POSSIBLE_VALUES);
+        //     });
+        // });
         Self {
             board: vec![vec![0; WIDTH]; HEIGHT],
             // possible_values: possible_values,
@@ -86,6 +84,7 @@ pub trait Sudoku {
     fn squares_complete(&self) -> bool;
     fn board_complete(&self) -> bool;
     fn set_value(&mut self, i: usize, j: usize, value: i32);
+    fn possible_values(&self) -> HashMap<(usize, usize), Vec<i32>>;
 }
 
 impl Sudoku for Board {
@@ -199,8 +198,41 @@ impl Sudoku for Board {
         self.rows_complete() && self.cols_complete() && self.squares_complete()
     }
 
-    fn set_value(&mut self, i: usize, j: usize, value: i32) {
-        self.board[i][j] = value
+    fn set_value(&mut self, row_index: usize, col_index: usize, value: i32) {
+        self.board[row_index][col_index] = value
+    }
+
+    fn possible_values(&self) -> HashMap<(usize, usize), Vec<i32>> {
+        let mut possible_values: HashMap<(usize, usize), Vec<i32>> = HashMap::new();
+        (0..HEIGHT).for_each(|row_index| {
+            (0..WIDTH).for_each(|col_index| {
+                let current_value = self
+                    .board
+                    .iter()
+                    .nth(row_index)
+                    .unwrap()
+                    .iter()
+                    .nth(col_index)
+                    .unwrap();
+                let key = (row_index, col_index);
+                let value = match current_value {
+                    x if x > &0 => vec![*x],
+                    _ => vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        .into_iter()
+                        .filter(|number| {
+                            (self.get_row(row_index).iter().any(|i| i != number))
+                                && (self.get_col(col_index).iter().any(|i| i != number))
+                                && (self
+                                    .get_square(row_index, col_index)
+                                    .iter()
+                                    .any(|i| i != number))
+                        })
+                        .collect(),
+                };
+                possible_values.insert(key, value);
+            });
+        });
+        possible_values
     }
 }
 
@@ -325,7 +357,7 @@ mod tests {
             board.squares(),
             vec![
                 vec![3, 7, 9, 0, 6, 0, 0, 8, 0],
-                vec![0, 0, 0, 0, 1, 0, 0, 0, 9,],
+                vec![0, 0, 0, 0, 1, 0, 0, 0, 9],
                 vec![0, 1, 4, 0, 7, 0, 0, 0, 5],
                 vec![4, 3, 5, 0, 9, 0, 0, 0, 0],
                 vec![0, 0, 7, 0, 4, 0, 8, 0, 0],
@@ -379,5 +411,17 @@ mod tests {
         assert_eq!(board.get_square(4, 4), vec![0, 0, 7, 0, 4, 0, 8, 0, 0]);
         assert_eq!(board.get_square(4, 2), vec![4, 3, 5, 0, 9, 0, 0, 0, 0]);
         assert_eq!(board.get_square(7, 3), vec![7, 0, 0, 0, 8, 0, 0, 0, 0]);
+    }
+
+    #[test]
+    fn test_possible_values() {
+        let board = Board::from_string(
+            "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
+        );
+        assert_eq!(board.possible_values().get(&(0, 0)), Some(&vec![3]));
+        assert_eq!(
+            board.possible_values().get(&(1, 0)),
+            Some(&vec![1, 2, 3, 4, 5, 6, 7, 8, 9])
+        );
     }
 }
