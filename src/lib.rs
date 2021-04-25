@@ -220,12 +220,12 @@ impl Sudoku for Board {
                     _ => vec![1, 2, 3, 4, 5, 6, 7, 8, 9]
                         .into_iter()
                         .filter(|number| {
-                            (self.get_row(row_index).iter().any(|i| i != number))
-                                && (self.get_col(col_index).iter().any(|i| i != number))
+                            (self.get_row(row_index).iter().all(|i| i != number))
+                                && (self.get_col(col_index).iter().all(|i| i != number))
                                 && (self
                                     .get_square(row_index, col_index)
                                     .iter()
-                                    .any(|i| i != number))
+                                    .all(|i| i != number))
                         })
                         .collect(),
                 };
@@ -419,9 +419,7 @@ mod tests {
             "379000014060010070080009005435007000090040020000800436900700080040080050850000249",
         );
         assert_eq!(board.possible_values().get(&(0, 0)), Some(&vec![3]));
-        assert_eq!(
-            board.possible_values().get(&(1, 0)),
-            Some(&vec![1, 2, 3, 4, 5, 6, 7, 8, 9])
-        );
+        assert_eq!(board.possible_values().get(&(1, 0)), Some(&vec![2, 5]));
+        assert_eq!(board.possible_values().get(&(0, 3)), Some(&vec![2, 5, 6]));
     }
 }
